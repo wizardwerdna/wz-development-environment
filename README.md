@@ -80,3 +80,61 @@ INFO [launcher]: Starting browser PhantomJS
 INFO [PhantomJS 1.9.7 (Mac OS X)]: Connected on socket FYnp23_hKDK-PLEfqADn with id 18841874
 PhantomJS 1.9.7 (Mac OS X): Executed 3 of 3 SUCCESS (0.002 secs / 0.003 secs)
 ```
+
+##Connecting to angular and the $templateCache
+
+First we install angular, angular-mocks and jquery
+
+```bash
+bower install angular --save
+bower install jquery angular-mocks --save-dev
+```
+
+we will use jquery as a convenience for testing.  Once these libraries are
+installed, we can add them to our karma.conf.js files, and use the "app"
+directory as our new basePath:
+
+```javascript
+// base path that will be used to resolve all patterns (eg. files, exclude)
+basePath: 'app',
+```
+
+```javascript
+
+// list of files / patterns to load in the browser
+ files: [
+   'bower_components/jquery/dist/jquery.js',
+   'bower_components/angular/angular.js',
+   'bower_components/angular-mocks/angular-mocks.js',
+   '*.js',
+   '../test/*.js'
+ ],
+```
+
+and drive out a walking angularjs skeleton with TDD (file: test/angular.js):
+
+```javascript
+'use strict';
+
+describe('build an angular-driven page', function(){
+  var page;
+  var html = '<div>\
+    <input ng-model="result">\
+    <div class="output">{{result}}</div>\
+  </div>';
+  beforeEach(function(){
+    inject(function($compile, $rootScope){
+      page = $compile(html)($rootScope);
+      $rootScope.$digest();
+    });
+  });
+  it('should display "test" when "test" is input', function(){
+    page.find('input').val('test').trigger('input');
+    expect(page.find('.output').text()).toBe('test');
+  });
+  it('should display "test2" when "test2" is input', function(){
+    page.find('input').val('test2').trigger('input');
+    expect(page.find('.output').text()).toBe('test2');
+  });
+});
+```
