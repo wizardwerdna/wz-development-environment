@@ -6,18 +6,23 @@ describe('build an angular-driven page', function(){
   beforeEach(function(){ page = buildPage(); });
 
   it('should display "test" when "test" is input', function(){
-    page.find('input').val('test').trigger('input');
-    expect(page.find('.output').text()).toBe('test');
+    page.input = 'test';
+    expect(page.output).toBe('test');
   });
 
   it('should display "test2" when "test2" is input', function(){
-    page.find('input').val('test2').trigger('input');
-    expect(page.find('.output').text()).toBe('test2');
+    page.input = 'test2';
+    expect(page.output).toBe('test2');
   });
 
   function buildPage(){
+    var spa;
     module('index.html');
-    return ngFrom('index.html');
+    spa = ngFrom('index.html');
+    return {
+      set input(string){ spa.find('input').val(string).trigger('input'); },
+      get output(){return spa.find('.output').text();}
+    };
   }
 
   function loadHtmlFrom(templateName){
