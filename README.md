@@ -138,3 +138,119 @@ describe('build an angular-driven page', function(){
   });
 });
 ```
+
+# Loading templates from $templateCache
+
+Refactoring to load the template from a $templateCache. First we load up the
+ng2html angular preprocessor:
+
+```bash
+npm install karma-ng-html2js-preprocessor --save-dev
+```
+
+update the karma.conf.js to use the preprocessor and to load html files
+
+```javascript
+files: [
+  'bower_components/jquery/dist/jquery.js',
+  'bower_components/angular/angular.js',
+  'bower_components/angular-mocks/angular-mocks.js',
+  '**/*.html',
+  '*.js',
+  '../test/*.js'
+],
+```
+
+```javascript
+preprocessors: {
+  '**/*.html': ['ng-html2js']
+},
+```
+
+restart the karma test runner, and build out the test:
+
+```javascript
+'use strict';
+
+describe('build an angular-driven page', function(){
+  var page;
+
+  beforeEach(function(){
+    var html;
+
+    module('index.html');
+
+    inject(function($templateCache){
+      html = $templateCache.get('index.html');
+    });
+
+    inject(function($compile, $rootScope){
+      page = $compile(html)($rootScope);
+      $rootScope.$digest();
+    });
+  });
+
+  it('should display "test" when "test" is input', function(){
+    page.find('input').val('test').trigger('input');
+    expect(page.find('.output').text()).toBe('test');
+  });
+
+  it('should display "test2" when "test2" is input', function(){
+    page.find('input').val('test2').trigger('input');
+    expect(page.find('.output').text()).toBe('test2');
+  });
+
+});
+```
+
+And refactoring a bit so we can extract some useful utilities:
+
+```javascript
+'use strict';
+
+describe('build an angular-driven page', function(){
+  var page;
+
+  beforeEach(function(){ page = buildPage(); });
+
+  it('should display "test" when "test" is input', function(){
+    page.find('input').val('test').trigger('input');
+    expect(page.find('.output').text()).toBe('test');
+  });
+
+  it('should display "test2" when "test2" is input', function(){
+    page.find('input').val('test2').trigger('input');
+    expect(page.find('.output').text()).toBe('test2');
+  });
+
+  function buildPage(){
+    module('index.html');
+    return ngFrom('index.html');
+  }
+
+  function loadHtmlFrom(templateName){
+    var html;
+    inject(function($templateCache){
+      html = $templateCache.get('index.html');
+    });
+    return html;
+  }
+
+  function ngFromHtml(html){
+    var page;
+    inject(function($compile, $rootScope){
+      page = $compile(html)($rootScope);
+      $rootScope.$digest();
+    });
+    return page;
+  };
+
+  function ngFrom(templateName){
+    return ngFromHtml(loadHtmlFrom(templateName));
+  };
+});
+
+And finally refactoring to use the page object pattern:
+
+
+```
