@@ -15,6 +15,12 @@
     "karma": "^0.12.24",
     "karma-jasmine": "^0.1.5",
     "karma-phantomjs-launcher": "^0.1.4",
-    "karma-ng-html2js-preprocessor": "^0.1.2"
+    "karma-ng-html2js-preprocessor": "^0.1.2",
+    "gulp-size": "^1.1.0",
+    "gulp-load-plugins": "^0.7.0",
+    "gulp": "^3.8.9",
+    "gulp-ruby-sass": "^0.7.1",
+    "browser-sync": "^1.6.0",
+    "gulp-autoprefixer": "^1.0.1"
   }
 }

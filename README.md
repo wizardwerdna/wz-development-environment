@@ -86,6 +86,7 @@ PhantomJS 1.9.7 (Mac OS X): Executed 3 of 3 SUCCESS (0.002 secs / 0.003 secs)
 First we install angular, angular-mocks and jquery
 
 ```bash
+bower init
 bower install angular --save
 bower install jquery angular-mocks --save-dev
 ```
@@ -251,7 +252,7 @@ describe('build an angular-driven page', function(){
 });
 ```
 
-And finally refactoring to use the page object pattern:
+And refactoring to use the page object pattern:
 
 ```javascript
 'use strict';
@@ -282,5 +283,171 @@ describe('build an angular-driven page', function(){
   }
 
   ...
+});
+```
+
+And, finally, moving the functions to a lib directory, adding the new file 
+karma.conf.js so we can use them in other tests (not shown).
+
+##Test Server
+
+Despite 100% passing test coverage, we still want to run our code, at least,
+inside a browser and see how things are working.  To accomplish this, we will
+assume an index.html file that will load an SPA, together with all of its
+support and utility code.  That said, we will want to be able to concurrently
+run our test scaffold and make tweaks to the code, the html and the css and
+be able to have the served browser code reloaded and visible.  To do this, we
+will use gulp, browserSync, and Sass to preprocess and reload our code where
+needed.  (Later on, we will build a more comprehensive gulpfile for doing
+complete production rebuilds.)
+
+First, lets load up some tech, starting with gulp, a few gulp plugins,
+browserSync and sass.
+
+```bash
+npm install gulp browser-sync gulp-load-plugins gul-ruby-sass gulp-size --save-dev
+```
+
+Now, lets build a small gulpfile to start a static browser loading our
+index.html and app.js, which will reload when the code is changed.
+
+```javascript
+'use strict';
+
+var gulp        = require('gulp');
+
+var $ = require('gulp-load-plugins')({
+  pattern: ['gulp-*', 'browser-sync']
+});
+
+var reload = $.browserSync.reload;
+
+gulp.task('reload', function(){
+  gulp.src(['app/**/*.{js,html,css}', '!app/bower_components/**'])
+    .pipe(reload({stream: true}));
+});
+
+gulp.task('watch', [] ,function () {
+  gulp.watch(['app/**/*.{js,html,css}', '!app/bower_components/**'],['reload']);
+});
+
+// Static server
+gulp.task('serve', ['watch'], function() {
+  $.browserSync({
+    server: {
+      baseDir: './app'
+    }
+  });
+});
+```
+
+You can start the server with `gulp serve`, but the result will be unsatisfactory,
+because the index file is incomplete.  Let's fill that out:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" href="styles/app.css" media="all">
+</head>
+<body ng-app>
+  <div>
+    <input ng-model="result">
+    <div class="output">{{result}}</div>
+  </div>
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+```
+
+Change some files, for example, changing the color in app/styles/app.css:
+
+```css
+body {
+  background: orange;
+}
+```
+
+and confirm we are running.  Next step, dynamic scss and Twitter Bootstrap.
+
+Lets load up twitter bootstrap
+
+```bash
+bower install bootstrap-sass --save-dev 
+```
+
+and change app/styles/app.scss to read:
+
+```scss
+$icon-font-path: "/bower_components/bootstrap-sass/fonts/";
+
+@import '../bower_components/bootstrap-sass/lib/bootstrap';
+
+/* Put your CSS here */
+html, body {
+  margin: 20px;
+}
+
+body {
+    background: #fafafa;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #333;
+}
+```
+
+and confirm that you have the technology running by executing
+
+```bash
+sass app/styles/app.scss app/styles/app.css
+```
+
+and confirm the changes are made when you run the server.  Now set up the 
+watcher and a gulp task to run rubySass by modifying the gulpfile to read:
+
+```javascript
+'use strict';
+
+var gulp        = require('gulp');
+
+var $ = require('gulp-load-plugins')({
+  pattern: ['gulp-*', 'browser-sync']
+});
+
+function handleError(err) {
+  console.error(err.toString());
+  this.emit('end');
+}
+
+var reload = $.browserSync.reload;
+
+gulp.task('reload', function(){
+  gulp.src(['app/**/*.{js,html,css}', '!app/bower_components/**'])
+    .pipe(reload({stream: true}));
+});
+
+gulp.task('styles', function () {
+  return gulp.src('app/**/*.scss')
+    .pipe($.rubySass())
+    .on('error', handleError)
+    // .pipe($.autoprefixer('last 1 version'))
+    .pipe(gulp.dest('app/'))
+    .pipe($.size());
+});
+
+gulp.task('watch', [] ,function () {
+  gulp.watch(['app/**/*.{js,html,css}', '!app/bower_components/**'],['reload']);
+  gulp.watch('app/**/*.scss', ['styles']);
+});
+
+// Static server
+gulp.task('serve', ['watch'], function() {
+  $.browserSync({
+    server: {
+      baseDir: './app'
+    }
+  });
 });
 ```

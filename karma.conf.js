@@ -1,3 +1,4 @@
+'use strict';
 // Karma configuration
 // Generated on Fri Oct 24 2014 16:25:32 GMT-0700 (PDT)
 
@@ -20,9 +21,9 @@ module.exports = function(config) {
       'bower_components/angular-mocks/angular-mocks.js',
       '**/*.html',
       '*.js',
+      '../lib/*.js',
       '../test/*.js'
     ],
-
 
     // list of files to exclude
     exclude: [

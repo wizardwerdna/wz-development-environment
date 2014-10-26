@@ -1,0 +1,25 @@
+{
+  "name": "wz-development-environment",
+  "version": "0.0.0",
+  "authors": [
+    "Andrew C. Greenberg <wizardwerdna@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-mocks": "~1.3.0",
+    "angular": "~1.3.0",
+    "jquery": "~2.1.1"
+  },
+  "devDependencies": {
+    "bootstrap-sass-official": "~3.2.0+2",
+    "bootstrap-sass": "~3.0.2"
+  }
+}
