@@ -3,4 +3,5 @@ git clone http://github.com/wizardwerdna/wz-development-environment.git $1 &&
 cd $1 &&
 npm install &&
 bower install &&
-karma start
+karma start &&
+rm test/*.js app/*.js app/index.html
