@@ -1,0 +1,6 @@
+#! /usr/bin/env sh
+git clone http://github.com/wizardwerdna/wz-development-environment.git $1 &&
+cd $1 &&
+npm install &&
+bower install &&
+karma start
