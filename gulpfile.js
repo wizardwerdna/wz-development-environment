@@ -27,7 +27,7 @@ gulp.task('styles', function () {
     .pipe($.size());
 });
 
-gulp.task('watch', [] ,function () {
+gulp.task('watch', ['styles'] ,function () {
   gulp.watch(['app/**/*.{js,html,css}', '!app/bower_components/**'],['reload']);
   gulp.watch('app/**/*.scss', ['styles']);
 });
